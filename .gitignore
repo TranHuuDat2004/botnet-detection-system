@@ -1,0 +1,11 @@
+# Bỏ qua các file dữ liệu lớn
+cicids2017_cleaned.csv
+test_data/
+
+# Bỏ qua các thư mục phụ thuộc của Node.js và Python
+node_modules/
+venv/
+
+# Bỏ qua các file tạm, file log, file môi trường
+*.log
+.env

@@ -1,0 +1,105 @@
+/* Tổng thể */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Container chính để căn giữa nội dung */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+/* Form Upload */
+form {
+    background-color: #ecf0f1;
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Khoảng cách giữa các phần tử */
+}
+
+input[type="file"] {
+    flex-grow: 1;
+}
+
+button[type="submit"] {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #2980b9;
+}
+
+/* Thông báo lỗi */
+.error {
+    color: #e74c3c;
+    background-color: #fdd;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    border: 1px solid #e74c3c;
+}
+
+/* Bảng kết quả */
+.results-container {
+    margin-top: 30px;
+    overflow-x: auto; /* Thêm thanh cuộn ngang nếu bảng quá rộng */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap; /* Ngăn các từ bị xuống dòng trong ô */
+}
+
+th {
+    background-color: #34495e;
+    color: white;
+    position: sticky; /* Giữ header của bảng khi cuộn */
+    top: 0;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Tô màu các dòng dự đoán là tấn công */
+.prediction-botnet {
+    background-color: #ffebee !important; /* Dùng !important để ghi đè */
+    color: #c62828;
+    font-weight: bold;
+}

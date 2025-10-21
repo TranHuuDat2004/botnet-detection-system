@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Phát hiện Botnet</title>
+    <!-- Liên kết đến file style.css bên ngoài -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Hệ thống Phân tích và Phát hiện Botnet</h1>
+        <p>Vui lòng tải lên một file log mạng (định dạng .csv) để hệ thống phân tích.</p>
+
+        <form action="/analyze" method="post" enctype="multipart/form-data">
+            <input type="file" name="csvfile" accept=".csv" required>
+            <button type="submit">Phân tích</button>
+        </form>
+
+        <% if (error) { %>
+            <p class="error">Lỗi: <%= error %></p>
+        <% } %>
+
+        <% if (results) { %>
+            <div class="results-container">
+                <h2>Kết quả Phân tích:</h2>
+                <p>Tìm thấy <%= results.length %> dòng dữ liệu.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <!-- Tự động tạo các cột tiêu đề từ kết quả JSON -->
+                            <% Object.keys(results[0]).forEach(function(key) { %>
+                                <th><%= key %></th>
+                            <% }); %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Duyệt qua và hiển thị từng dòng kết quả -->
+                        <% results.forEach(function(row) { %>
+                            <tr class="<%= row.Attack_Prediction !== 'Normal Traffic' ? 'prediction-botnet' : '' %>">
+                                <% Object.values(row).forEach(function(value) { %>
+                                    <td><%= value %></td>
+                                <% }); %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
