@@ -1,105 +1,215 @@
-/* Tổng thể */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f7f9;
-    color: #333;
-    margin: 0;
-    padding: 20px;
+/* --- Global Styling --- */
+:root {
+    --primary-color: #007bff;
+    --primary-hover-color: #0056b3;
+    --background-color: #f4f6f8;
+    --container-bg-color: #ffffff;
+    --text-color: #333;
+    --border-color: #dee2e6;
+    --botnet-highlight-bg: #ffebee;
+    --botnet-highlight-text: #c62828;
+    --error-color: #dc3545;
 }
 
-/* Container chính để căn giữa nội dung */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    background-color: #ffffff;
+    background-color: var(--container-bg-color);
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-h1, h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 10px;
 }
 
 p {
-    margin-bottom: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #6c757d;
 }
 
-/* Form Upload */
+/* --- Form & Drop Zone Styling --- */
 form {
-    background-color: #ecf0f1;
-    padding: 20px;
-    border-radius: 5px;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 15px; /* Khoảng cách giữa các phần tử */
+    flex-wrap: wrap;
 }
 
-input[type="file"] {
-    flex-grow: 1;
+.drop-zone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    min-width: 400px;
+    margin: 0 15px 20px 0;
+    padding: 0 20px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #8a97a5;
+    background-color: #ffffff;
+    border: 2px dashed var(--border-color);
+    border-radius: 5px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
-button[type="submit"] {
-    background-color: #3498db;
+.drop-zone:hover, .drop-zone--over {
+    border-color: var(--primary-color);
+}
+
+.drop-zone__icon {
+    stroke: #b0bec5;
+    margin-right: 8px;
+}
+
+.drop-zone__select {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.drop-zone__input {
+    display: none;
+}
+
+.submit-button {
+    height: 50px;
+    margin-bottom: 20px;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 0 30px;
     border-radius: 5px;
-    cursor: pointer;
     font-size: 16px;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover {
-    background-color: #2980b9;
+.submit-button:hover {
+    background-color: var(--primary-hover-color);
 }
 
-/* Thông báo lỗi */
-.error {
-    color: #e74c3c;
-    background-color: #fdd;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 20px;
-    border: 1px solid #e74c3c;
+/* --- Results, Charts, and Table --- */
+.charts-container {
+    display: flex;
+    gap: 30px;
+    margin: 40px 0;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-/* Bảng kết quả */
+.chart-wrapper {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    text-align: center;
+    height: 350px;
+}
+
+.chart-wrapper h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
 .results-container {
-    margin-top: 30px;
-    overflow-x: auto; /* Thêm thanh cuộn ngang nếu bảng quá rộng */
+    margin-top: 20px;
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
     text-align: left;
-    white-space: nowrap; /* Ngăn các từ bị xuống dòng trong ô */
+    white-space: nowrap;
 }
 
-th {
-    background-color: #34495e;
+thead th {
+    background-color: var(--primary-color);
     color: white;
-    position: sticky; /* Giữ header của bảng khi cuộn */
-    top: 0;
+    font-weight: bold;
 }
 
 tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/* Tô màu các dòng dự đoán là tấn công */
 .prediction-botnet {
-    background-color: #ffebee !important; /* Dùng !important để ghi đè */
-    color: #c62828;
+    background-color: var(--botnet-highlight-bg) !important;
+    color: var(--botnet-highlight-text);
     font-weight: bold;
+}
+
+.error {
+    color: var(--error-color);
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* --- Loader & Helpers --- */
+.loader-container {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- Charts Styling --- */
+.charts-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.chart-wrapper {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    text-align: center;
+    height: 400px; /* <-- THÊM DÒNG NÀY ĐỂ CỐ ĐỊNH CHIỀU CAO */
+}
+
+.chart-wrapper h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
 }

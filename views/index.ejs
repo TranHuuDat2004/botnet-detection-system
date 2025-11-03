@@ -4,40 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Phát hiện Botnet</title>
-    <!-- Liên kết đến file style.css bên ngoài -->
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Hệ thống Phân tích và Phát hiện Botnet</h1>
         <p>Vui lòng tải lên một file log mạng (định dạng .csv) để hệ thống phân tích.</p>
 
-        <form action="/analyze" method="post" enctype="multipart/form-data">
-            <input type="file" name="csvfile" accept=".csv" required>
-            <button type="submit">Phân tích</button>
+        <form id="analyze-form" action="/analyze" method="post" enctype="multipart/form-data">
+            <div class="drop-zone">
+                <span class="drop-zone__prompt">
+                    <svg class="drop-zone__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Kéo & thả file .csv của bạn vào đây, hoặc <span class="drop-zone__select">chọn tệp</span>
+                </span>
+                <input type="file" name="csvfile" id="csvfile" class="drop-zone__input" accept=".csv" required>
+            </div>
+            <button type="submit" id="submit-button" class="submit-button">Phân tích</button>
         </form>
+
+        <div id="loader" class="loader-container hidden">
+            <div class="spinner"></div>
+            <p>Đang xử lý, vui lòng chờ trong giây lát...</p>
+        </div>
 
         <% if (error) { %>
             <p class="error">Lỗi: <%= error %></p>
         <% } %>
 
-        <% if (results) { %>
+        <% if (results && results.length > 0) { %>
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <h3>Tỷ lệ Tấn công / Bình thường</h3>
+                    <canvas id="attackPercentageChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Thống kê chi tiết các loại Tấn công</h3>
+                    <canvas id="attackCountChart"></canvas>
+                </div>
+            </div>
+
             <div class="results-container">
-                <h2>Kết quả Phân tích:</h2>
-                <p>Tìm thấy <%= results.length %> dòng dữ liệu.</p>
+                <h2>Kết quả Chi tiết:</h2>
+                <p>Tìm thấy <%= results.length %> dòng dữ liệu. Các dòng bị phát hiện là tấn công đã được tô màu đỏ.</p>
                 <table>
                     <thead>
                         <tr>
-                            <!-- Tự động tạo các cột tiêu đề từ kết quả JSON -->
+                            <th>STT</th>
                             <% Object.keys(results[0]).forEach(function(key) { %>
                                 <th><%= key %></th>
                             <% }); %>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Duyệt qua và hiển thị từng dòng kết quả -->
-                        <% results.forEach(function(row) { %>
+                        <% results.forEach(function(row, index) { %>
                             <tr class="<%= row.Attack_Prediction !== 'Normal Traffic' ? 'prediction-botnet' : '' %>">
+                                <td><%= index + 1 %></td>
                                 <% Object.values(row).forEach(function(value) { %>
                                     <td><%= value %></td>
                                 <% }); %>
@@ -48,5 +70,107 @@
             </div>
         <% } %>
     </div>
+
+    <script>
+        const form = document.getElementById('analyze-form');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', () => {
+            document.querySelector('.container').classList.add('hidden');
+            loader.classList.remove('hidden');
+        });
+
+        document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
+            const dropZoneElement = inputElement.closest(".drop-zone");
+            dropZoneElement.addEventListener("click", (e) => { inputElement.click(); });
+            inputElement.addEventListener("change", (e) => { if (inputElement.files.length) { updateThumbnail(dropZoneElement, inputElement.files[0]); } });
+            dropZoneElement.addEventListener("dragover", (e) => { e.preventDefault(); dropZoneElement.classList.add("drop-zone--over"); });
+            ["dragleave", "dragend"].forEach((type) => { dropZoneElement.addEventListener(type, (e) => { dropZoneElement.classList.remove("drop-zone--over"); }); });
+            dropZoneElement.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length) { inputElement.files = e.dataTransfer.files; updateThumbnail(dropZoneElement, e.dataTransfer.files[0]); }
+                dropZoneElement.classList.remove("drop-zone--over");
+            });
+        });
+
+        function updateThumbnail(dropZoneElement, file) {
+            const promptElement = dropZoneElement.querySelector(".drop-zone__prompt");
+            const iconHTML = promptElement.querySelector(".drop-zone__icon").outerHTML;
+            promptElement.innerHTML = `${iconHTML} Đã chọn tệp: <strong>${file.name}</strong>`;
+        }
+
+        <% if (results && results.length > 0) { %>
+            const analysisResults = <%- JSON.stringify(results) %>;
+
+            function renderCharts(data) {
+                let normalCount = 0;
+                let attackCount = 0;
+                data.forEach(row => {
+                    if (row.Attack_Prediction === 'Normal Traffic') {
+                        normalCount++;
+                    } else {
+                        attackCount++;
+                    }
+                });
+
+                const pieCtx = document.getElementById('attackPercentageChart').getContext('2d');
+                new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Tấn công', 'Bình thường'],
+                        datasets: [{
+                            data: [attackCount, normalCount],
+                            backgroundColor: ['#e53935', '#43a047'],
+                            borderColor: ['#ffffff', '#ffffff'],
+                            borderWidth: 2
+                        }]
+                    },
+                    // --- CẬP NHẬT: Tùy chỉnh cho biểu đồ tròn ---
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Quan trọng: cho phép biểu đồ lấp đầy div
+                        plugins: {
+                            legend: {
+                                position: 'top', // Di chuyển chú thích lên trên
+                            }
+                        }
+                    }
+                });
+
+                const attackCounts = {};
+                data.forEach(row => {
+                    const prediction = row.Attack_Prediction;
+                    if (prediction !== 'Normal Traffic') {
+                        attackCounts[prediction] = (attackCounts[prediction] || 0) + 1;
+                    }
+                });
+                
+                const attackLabels = Object.keys(attackCounts);
+                const attackData = Object.values(attackCounts);
+
+                const barCtx = document.getElementById('attackCountChart').getContext('2d');
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: attackLabels,
+                        datasets: [{
+                            label: 'Số lượng',
+                            data: attackData,
+                            backgroundColor: '#c62828'
+                        }]
+                    },
+                    // --- CẬP NHẬT: Tùy chỉnh cho biểu đồ cột ---
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Quan trọng: cho phép biểu đồ lấp đầy div
+                        scales: { y: { beginAtZero: true } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            renderCharts(analysisResults);
+        <% } %>
+    </script>
 </body>
 </html>
