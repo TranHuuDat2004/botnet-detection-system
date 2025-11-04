@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import joblib
 import pandas as pd
-import numpy as np
+import json # Thêm thư viện json
 
 app = Flask(__name__)
 
-# --- LOAD CÁC FILE .pkl KHI SERVER KHỞI ĐỘNG ---
+# --- LOAD CÁC FILE .pkl ---
 try:
     model = joblib.load('botnet_model.pkl')
     scaler = joblib.load('scaler.pkl')
@@ -14,6 +14,19 @@ try:
 except Exception as e:
     print(f"* Lỗi khi load file .pkl: {e}")
     model = scaler = label_encoder = None
+
+# --- ENDPOINT MỚI: Đọc và trả về file stats.json ---
+@app.route('/stats', methods=['GET'])
+def get_stats():
+    try:
+        # Mở và đọc file JSON
+        with open('stats.json', 'r', encoding='utf-8') as f:
+            stats_data = json.load(f)
+        return jsonify(stats_data)
+    except FileNotFoundError:
+        return jsonify({"error": "Không tìm thấy file stats.json trên server."}), 404
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi đọc file JSON: {str(e)}"}), 500
 
 # --- API ENDPOINT ĐỂ DỰ ĐOÁN ---
 @app.route('/predict', methods=['POST'])

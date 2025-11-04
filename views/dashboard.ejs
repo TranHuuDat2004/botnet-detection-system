@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hệ thống Phát hiện Botnet</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="page-container">
+        <%- include('partials/sidebar') %>
+        
+        <!-- Nội dung chính của trang Dashboard -->
+        <main class="content-wrapper">
+            <h1>Tổng quan Dữ liệu Huấn luyện</h1>
+            <p class="subtitle">Dữ liệu được thu thập và thống kê từ bộ dữ liệu gốc <strong>cicids2017_cleaned.csv</strong>.</p>
+
+            <% if (error) { %>
+                <p class="error"><%= error %></p>
+            <% } else if (stats) { %>
+                <!-- CÁC THẺ THỐNG KÊ CHÍNH -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Tổng số Kết nối</h4>
+                        <p class="counter" data-target="<%= stats.total_rows %>">0</p>
+                    </div>
+                    <div class="stat-card stat-card-attack">
+                        <h4>Phát hiện Tấn công</h4>
+                        <p class="counter" data-target="<%= stats.attack_count %>">0</p>
+                    </div>
+                    <div class="stat-card stat-card-normal">
+                        <h4>Lưu lượng Bình thường</h4>
+                        <p class="counter" data-target="<%= stats.normal_count %>">0</p>
+                    </div>
+                </div>
+                
+                <!-- KHU VỰC BIỂU ĐỒ -->
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h3>Tỷ lệ Tấn công / Bình thường</h3>
+                        <canvas id="attackPercentageChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Thống kê chi tiết các loại Tấn công</h3>
+                        <canvas id="attackCountChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- BẢNG CHI TIẾT -->
+                <div class="attack-details">
+                    <h2>Bảng Thống kê Chi tiết</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loại Tấn công</th>
+                                <th>Số lượng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (const [attack, count] of Object.entries(stats.attack_breakdown)) { %>
+                                <tr>
+                                    <td><%= attack %></td>
+                                    <td><%= count.toLocaleString('vi-VN') %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </main> <!-- Đóng thẻ main từ sidebar -->
+    </div> <!-- Đóng thẻ main-content từ sidebar -->
+    
+    <script>
+        // Script cho Hamburger Menu
+        document.getElementById('hamburger-menu').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('sidebar-collapsed');
+            document.querySelector('.main-content').classList.toggle('main-content-expanded');
+        });
+
+        // Script chỉ chạy khi có dữ liệu `stats`
+        <% if (stats) { %>
+            // --- BẮT ĐẦU KHỐI LỆNH CẦN DỮ LIỆU ---
+
+            const statsData = <%- JSON.stringify(stats) %>;
+
+            // 1. Vẽ biểu đồ tròn
+            const pieCtx = document.getElementById('attackPercentageChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Tấn công', 'Bình thường'],
+                    datasets: [{
+                        data: [statsData.attack_count, statsData.normal_count],
+                        backgroundColor: ['#e53935', '#43a047'],
+                        borderColor: ['#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // 2. Vẽ biểu đồ cột
+            const attackLabels = Object.keys(statsData.attack_breakdown);
+            const attackData = Object.values(statsData.attack_breakdown);
+            const barCtx = document.getElementById('attackCountChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: attackLabels,
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: attackData,
+                        backgroundColor: '#c62828'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 3. Script cho hiệu ứng đếm số
+            const counters = document.querySelectorAll('.counter');
+            const speed = 200;
+
+            counters.forEach(counter => {
+                const animate = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText.replace(/\./g, '');
+                    const increment = Math.ceil(target / speed);
+
+                    if (count < target) {
+                        const newCount = count + increment;
+                        counter.innerText = Math.min(newCount, target).toLocaleString('vi-VN');
+                        setTimeout(animate, 10);
+                    } else {
+                        counter.innerText = target.toLocaleString('vi-VN');
+                    }
+                };
+                animate();
+            });
+
+            // --- KẾT THÚC KHỐI LỆNH CẦN DỮ LIỆU ---
+        <% } %>
+    </script>
+</body>
+</html>

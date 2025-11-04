@@ -1,0 +1,13 @@
+{
+    "total_rows": 2520751,
+    "normal_count": 2095057,
+    "attack_count": 425694,
+    "attack_breakdown": {
+        "DoS": 193745,
+        "DDoS": 128014,
+        "Port Scanning": 90694,
+        "Brute Force": 9150,
+        "Web Attacks": 2143,
+        "Bots": 1948
+    }
+}

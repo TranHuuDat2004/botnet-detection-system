@@ -21,7 +21,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 95%; /* <-- ĐÃ SỬA. Dùng % để co giãn tốt hơn */
     margin: 0 auto;
     background-color: var(--container-bg-color);
     padding: 30px;
@@ -212,4 +212,148 @@ tbody tr:nth-child(even) {
     margin-bottom: 15px;
     color: #333;
     font-size: 18px;
+}
+
+/* Thêm vào cuối file style.css */
+
+/* CSS cho dòng ghi chú nguồn dữ liệu */
+.subtitle {
+    text-align: left !important; /* Ghi đè style cũ */
+    margin-bottom: 30px !important;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Đảm bảo chiều cao của chart wrapper được áp dụng */
+.chart-wrapper {
+    height: 400px; 
+}
+
+/* --- Cấu trúc Layout mới với Sidebar --- */
+body {
+    padding: 0;
+}
+
+.page-container {
+    display: flex;
+}
+
+.sidebar {
+    width: 260px;
+    background: #ffffff;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transition: width 0.3s ease;
+    z-index: 1000;
+    overflow-x: hidden;
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h3 {
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+}
+
+.nav-links li a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #555;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    background-color: #eef2ff;
+    color: var(--primary-color);
+}
+
+.main-content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    transition: margin-left 0.3s, width 0.3s;
+    padding: 20px;
+}
+
+.main-header {
+    display: none; /* Ẩn header mặc định, chỉ hiện hamburger trên mobile */
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.hamburger-menu {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+
+/* --- Responsive cho Menu --- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+    }
+    .sidebar.sidebar-collapsed {
+        width: 260px;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    .main-header {
+        display: flex;
+    }
+}
+
+
+/* --- CSS cho Trang Dashboard --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: var(--container-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.stat-card h4 {
+    margin: 0 0 10px 0;
+    color: #6c757d;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.stat-card.stat-card-attack p { color: var(--error-color); }
+.stat-card.stat-card-normal p { color: #43a047; }
+
+.attack-details table {
+    margin-top: 10px;
 }
